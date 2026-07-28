@@ -8,9 +8,9 @@ Settings → Secrets and variables → Actions :
 
 | Secret | Description | Exemple |
 |--------|-------------|---------|
-| `VPS_HOST` | IP / hostname VPS | `123.45.67.89` |
-| `VPS_USERNAME` | User SSH | `root` / `ubuntu` |
-| `VPS_SSH_KEY` | Clé privée SSH | contenu de `~/.ssh/github-actions` |
+| `VPS_HOST` | IP / hostname VPS | `76.13.55.97` |
+| `VPS_USERNAME` | User SSH | `root` |
+| `VPS_PASSWORD` | Mot de passe SSH | ton mdp root |
 | `VPS_PORT` | Port SSH | `22` |
 | `DEPLOY_PATH` | Chemin production | `/var/www/varyon-dashboard` |
 | `LOKI_URL` | Loki | `http://127.0.0.1:3100` |
