@@ -65,6 +65,7 @@ export function useLogs() {
         const dropped = lines.value.splice(0, lines.value.length - 2000)
         for (const d of dropped) seen.delete(lineKey(d))
       }
+      windowStart = end
       error.value = null
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e)

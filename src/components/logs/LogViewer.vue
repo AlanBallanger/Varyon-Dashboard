@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full min-h-[420px] border border-base-300 rounded-lg overflow-hidden bg-base-200/40">
+  <div class="flex flex-col h-full min-h-0 border border-base-300 rounded-lg overflow-hidden bg-base-200/40">
     <div
       v-if="error"
       class="alert alert-error rounded-none text-sm"

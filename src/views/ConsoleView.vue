@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 space-y-4 h-full flex flex-col">
+  <div class="p-6 space-y-4 h-full min-h-0 flex flex-col">
     <div class="flex items-end justify-between gap-4 flex-wrap">
       <div>
         <h2 class="text-2xl font-semibold">Console</h2>
