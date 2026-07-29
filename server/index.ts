@@ -1,7 +1,7 @@
 import { createServer } from 'node:http'
 import { readFile } from 'node:fs/promises'
 import { join, extname } from 'node:path'
-import { loadEnv } from './env'
+import { resolveEnv, listEnvironments, DEFAULT_ENVIRONMENT_ID } from './env'
 import { getHealth } from './health'
 import { queryLokiLogs } from './loki'
 import { getPlayers } from './players'
@@ -9,9 +9,10 @@ import { listMods } from './mods'
 import { sendConsoleCommand } from './console'
 import { readJournal } from './journal'
 import { listLogFiles, readLogFile } from './logFiles'
+import { listServers, runServerAction, isServerAction } from './servers'
 import type { ConsoleSendRequest, LogLevel, PublicConfig } from './types'
 
-const env = loadEnv()
+const apiPort = resolveEnv(DEFAULT_ENVIRONMENT_ID).apiPort
 
 function sendJson(res: import('node:http').ServerResponse, status: number, body: unknown) {
   const data = JSON.stringify(body)
@@ -27,7 +28,7 @@ function sendError(res: import('node:http').ServerResponse, status: number, mess
 }
 
 function parseUrl(reqUrl: string | undefined) {
-  return new URL(reqUrl ?? '/', `http://127.0.0.1:${env.apiPort}`)
+  return new URL(reqUrl ?? '/', `http://127.0.0.1:${apiPort}`)
 }
 
 async function readJsonBody(req: import('node:http').IncomingMessage, maxBytes = 8192): Promise<unknown> {
@@ -45,6 +46,14 @@ async function readJsonBody(req: import('node:http').IncomingMessage, maxBytes =
 const server = createServer(async (req, res) => {
   try {
     const url = parseUrl(req.url)
+    const env = resolveEnv(url.searchParams.get('env'))
+
+    if (req.method === 'GET' && url.pathname === '/api/environments') {
+      return sendJson(res, 200, {
+        environments: listEnvironments(),
+        default: DEFAULT_ENVIRONMENT_ID,
+      })
+    }
     if (req.method === 'GET' && url.pathname === '/api/health') {
       return sendJson(res, 200, await getHealth(env))
     }
@@ -83,6 +92,23 @@ const server = createServer(async (req, res) => {
     }
     if (req.method === 'GET' && url.pathname === '/api/mods') {
       return sendJson(res, 200, await listMods(env))
+    }
+    if (req.method === 'GET' && url.pathname === '/api/servers') {
+      return sendJson(res, 200, await listServers())
+    }
+    if (req.method === 'POST' && url.pathname === '/api/servers/action') {
+      const body = (await readJsonBody(req)) as { id?: unknown; action?: unknown }
+      if (typeof body.id !== 'string' || typeof body.action !== 'string') {
+        return sendError(res, 400, 'Missing "id" and "action" strings')
+      }
+      if (!isServerAction(body.action)) {
+        return sendError(res, 400, `Invalid action "${body.action}"`)
+      }
+      try {
+        return sendJson(res, 200, await runServerAction(body.id, body.action))
+      } catch (e) {
+        return sendError(res, 400, e instanceof Error ? e.message : String(e))
+      }
     }
     if (req.method === 'GET' && url.pathname === '/api/console/stream') {
       const cursor = url.searchParams.get('cursor') ?? undefined
@@ -129,6 +155,6 @@ const server = createServer(async (req, res) => {
   }
 })
 
-server.listen(env.apiPort, '0.0.0.0', () => {
-  console.log(`Varyon API listening on http://0.0.0.0:${env.apiPort}`)
+server.listen(apiPort, '0.0.0.0', () => {
+  console.log(`Varyon API listening on http://0.0.0.0:${apiPort}`)
 })

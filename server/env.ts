@@ -37,16 +37,49 @@ export type AppEnv = {
   logsDir: string
 }
 
-export function loadEnv(): AppEnv {
-  return {
-    lokiUrl: process.env.LOKI_URL ?? 'http://localhost:3100',
-    prometheusUrl: process.env.PROMETHEUS_URL ?? 'http://localhost:9090',
+export type ServerEnvironment = {
+  id: string
+  label: string
+}
+
+const SHARED = {
+  lokiUrl: process.env.LOKI_URL ?? 'http://localhost:3100',
+  prometheusUrl: process.env.PROMETHEUS_URL ?? 'http://localhost:9090',
+  apiPort: Number(process.env.API_PORT ?? 8787),
+}
+
+/** Per-environment config. Loki/Prometheus are shared; only server-specific paths differ. */
+const ENVIRONMENTS: Record<string, AppEnv> = {
+  hytale: {
+    ...SHARED,
     modsPath: process.env.HYTALE_MODS_PATH ?? '/opt/hytale/server/mods',
     lokiLogSelector: process.env.LOKI_LOG_SELECTOR ?? '{job="hytale"}',
-    apiPort: Number(process.env.API_PORT ?? 8787),
     playersPromql: process.env.PLAYERS_PROMQL ?? 'hytale_players_online',
     consoleFifoPath: process.env.CONSOLE_FIFO_PATH ?? '/opt/hytale/server/console.fifo',
     consoleUnit: process.env.CONSOLE_UNIT ?? 'hytale',
     logsDir: process.env.HYTALE_LOGS_DIR ?? '/opt/hytale/server/logs',
-  }
+  },
+  test: {
+    ...SHARED,
+    modsPath: process.env.TEST_MODS_PATH ?? '/opt/test/server/mods',
+    lokiLogSelector: process.env.TEST_LOKI_LOG_SELECTOR ?? '{job="test"}',
+    playersPromql: process.env.TEST_PLAYERS_PROMQL ?? 'test_players_online',
+    consoleFifoPath: process.env.TEST_CONSOLE_FIFO_PATH ?? '/opt/test/server/console.fifo',
+    consoleUnit: process.env.TEST_CONSOLE_UNIT ?? 'test',
+    logsDir: process.env.TEST_LOGS_DIR ?? '/opt/test/server/logs',
+  },
+}
+
+export const DEFAULT_ENVIRONMENT_ID = 'hytale'
+
+export function listEnvironments(): ServerEnvironment[] {
+  return [
+    { id: 'hytale', label: 'Hytale' },
+    { id: 'test', label: 'Test' },
+  ]
+}
+
+export function resolveEnv(id: string | null | undefined): AppEnv {
+  if (id && ENVIRONMENTS[id]) return ENVIRONMENTS[id]
+  return ENVIRONMENTS[DEFAULT_ENVIRONMENT_ID]
 }

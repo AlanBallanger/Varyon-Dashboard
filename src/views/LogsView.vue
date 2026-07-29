@@ -1,20 +1,13 @@
 <template>
   <div class="p-6 space-y-4 h-full min-h-0 flex flex-col">
     <div class="flex items-end justify-between gap-4 flex-wrap">
-      <div>
-        <h2 class="text-2xl font-semibold">Logs</h2>
-        <p class="text-sm opacity-60 mt-1">
-          Sélecteur :
-          <code class="text-xs bg-base-200 px-1.5 py-0.5 rounded">{{ selector || '…' }}</code>
-        </p>
-      </div>
+      <h2 class="text-2xl font-semibold">Logs</h2>
       <span v-if="loading" class="loading loading-spinner loading-sm opacity-50" />
     </div>
 
     <LogFilters
       v-model:filter="filter"
       v-model:level="level"
-      v-model:live="live"
       :paused="paused"
       :available-mods="availableMods"
       :selected-mods="selectedMods"
@@ -42,11 +35,9 @@ const {
   level,
   selectedMods,
   availableMods,
-  live,
   paused,
   loading,
   error,
-  selector,
   source,
   logFiles,
   togglePause,

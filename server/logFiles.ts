@@ -8,13 +8,12 @@ const MAX_READ_BYTES = 2 * 1024 * 1024
 
 const LINE_TS_RE = /^\[(\d{4})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/
 
-/** Extracts the [yyyy/mm/dd hh:mm:ss] prefix Hytale writes at the start of each line. */
+/** Extracts the [yyyy/mm/dd hh:mm:ss] prefix Hytale writes at the start of each line (UTC). */
 function extractLineTs(line: string): string | null {
   const m = LINE_TS_RE.exec(line)
   if (!m) return null
   const [, y, mo, d, h, mi, s] = m
-  const iso = `${y}-${mo}-${d}T${h}:${mi}:${s}`
-  const date = new Date(iso)
+  const date = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi), Number(s)))
   return Number.isNaN(date.getTime()) ? null : date.toISOString()
 }
 

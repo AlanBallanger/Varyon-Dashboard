@@ -23,11 +23,16 @@ describe('extractModTags', () => {
     expect(extractModTags('[Universe|P] Backing up universe...')).toEqual(['Universe'])
   })
 
-  it('extracts multiple tags in one line', () => {
-    expect(extractModTags('[SOUT] [EcotalJobs] === NPC DEATH ===')).toEqual([
-      'SOUT',
-      'EcotalJobs',
-    ])
+  it('keeps only the first tag when a line has multiple bracketed tags', () => {
+    expect(extractModTags('[SOUT] [EcotalJobs] === NPC DEATH ===')).toEqual(['SOUT'])
+    expect(
+      extractModTags(
+        '[EssentialsPlus] [DEBUG] [EventListenerTempBan.onPlayerConnect] [Marobo] START',
+      ),
+    ).toEqual(['EssentialsPlus'])
+    expect(
+      extractModTags('[EcotaleJobs] [MINING-DEBUG] Block: Rock_Basalt_Cobble | GatherType: Rocks'),
+    ).toEqual(['EcotaleJobs'])
   })
 
   it('returns empty when no brackets', () => {
@@ -78,9 +83,10 @@ describe('lineMatchesMods', () => {
     expect(lineMatchesMods(line('plain'), null)).toBe(true)
   })
 
-  it('matches tagged line if any tag is selected', () => {
-    const selected = new Set(['EcotalJobs', 'Hytale'])
+  it('matches on the line\'s first (emitting) tag only', () => {
+    const selected = new Set(['SOUT', 'Hytale'])
     expect(lineMatchesMods(line('[SOUT] [EcotalJobs] death'), selected)).toBe(true)
+    expect(lineMatchesMods(line('[EcotalJobs] [SOUT] death'), selected)).toBe(false)
     expect(lineMatchesMods(line('[ModProfiler|P] x'), selected)).toBe(false)
   })
 

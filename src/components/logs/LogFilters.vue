@@ -7,11 +7,11 @@
     >
       <option :value="LIVE_SOURCE">Live (Loki)</option>
       <option v-for="file in logFiles" :key="file.name" :value="file.name">
-        {{ file.name }}
+        {{ formatFileLabel(file) }}
       </option>
     </select>
 
-    <label class="input input-bordered input-sm flex items-center gap-2 min-w-[220px] flex-1">
+    <label class="input input-bordered input-sm flex items-center gap-2 min-w-[220px] flex-1 max-w-md">
       <input
         :value="filter"
         type="text"
@@ -67,16 +67,6 @@
       </div>
     </details>
 
-    <label class="label cursor-pointer gap-2 py-0">
-      <span class="label-text text-sm">Live</span>
-      <input
-        type="checkbox"
-        class="toggle toggle-sm toggle-success"
-        :checked="live"
-        @change="onLive"
-      />
-    </label>
-
     <button class="btn btn-sm" type="button" @click="$emit('toggle-pause')">
       {{ paused ? 'Reprendre' : 'Pause' }}
     </button>
@@ -91,7 +81,6 @@ import { LIVE_SOURCE } from '@/composables/useLogs'
 const props = defineProps<{
   filter: string
   level: LogLevel
-  live: boolean
   paused: boolean
   availableMods: string[]
   /** null = all selected */
@@ -103,7 +92,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:filter': [value: string]
   'update:level': [value: LogLevel]
-  'update:live': [value: boolean]
   'toggle-pause': []
   'mods-all': []
   'mods-none': []
@@ -113,6 +101,26 @@ const emit = defineEmits<{
 
 function onSource(e: Event) {
   emit('select-source', (e.target as HTMLSelectElement).value)
+}
+
+const FILE_NAME_RE = /^(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})_/
+
+function formatFileLabel(file: LogFileInfo): string {
+  const m = FILE_NAME_RE.exec(file.name)
+  if (!m) return file.name
+  const [, y, mo, d, h, mi, s] = m
+  // The server writes this timestamp in UTC; parse it as such so the label
+  // converts correctly to the browser's local timezone (e.g. UTC+2).
+  const date = new Date(Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi), Number(s)))
+  if (Number.isNaN(date.getTime())) return file.name
+  return date.toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
 }
 
 const modBadge = computed(() => {
@@ -137,9 +145,5 @@ function onFilter(e: Event) {
 
 function onLevel(e: Event) {
   emit('update:level', (e.target as HTMLSelectElement).value as LogLevel)
-}
-
-function onLive(e: Event) {
-  emit('update:live', (e.target as HTMLInputElement).checked)
 }
 </script>

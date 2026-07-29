@@ -20,19 +20,19 @@ function shortenTagName(name: string): string {
   return segments[segments.length - 1] || name
 }
 
-/** Extract mod/component names from [Name] / [Name|P] tags in a log line. */
+/**
+ * Extract the mod/component name from a log line's leading [Name] / [Name|P] tag.
+ * Only the first valid tag is treated as the emitting mod — later tags on the
+ * same line are contextual (debug markers, method names, player names, etc.)
+ * and would otherwise pollute the mod list (e.g. a player tag like [Marobo]).
+ */
 export function extractModTags(line: string): string[] {
-  const tags: string[] = []
-  const seen = new Set<string>()
   for (const match of line.matchAll(TAG_RE)) {
     const raw = match[1]?.trim()
     if (!raw || !isModTagName(raw)) continue
-    const name = shortenTagName(raw)
-    if (seen.has(name)) continue
-    seen.add(name)
-    tags.push(name)
+    return [shortenTagName(raw)]
   }
-  return tags
+  return []
 }
 
 /** Sorted unique mod names from lines; includes UNTAGGED_MOD if any line has no tags. */

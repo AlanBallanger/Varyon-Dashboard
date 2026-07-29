@@ -78,3 +78,22 @@ export type ConsoleStreamResponse = {
 export type ConsoleSendResponse = {
   ok: true
 }
+
+export type ServerAction = 'start' | 'stop' | 'restart'
+
+export type ServerStatus = {
+  id: string
+  label: string
+  unit: string
+  /** systemd ActiveState: active, inactive, failed, activating… */
+  activeState: string
+  subState: string
+  running: boolean
+  activeSinceMs?: number
+  /** Set when the unit status could not be read. */
+  error?: string
+}
+
+export type ServersResponse = {
+  servers: ServerStatus[]
+}

@@ -16,11 +16,9 @@ export function useLogs() {
   const level = ref<LogLevel>('ALL')
   /** null = all mods selected */
   const selectedMods = ref<string[] | null>(null)
-  const live = ref(true)
   const paused = ref(false)
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const selector = ref('')
   const logsPollMs = ref(2000)
   const source = ref<string>(LIVE_SOURCE)
   const logFiles = ref<LogFileInfo[]>([])
@@ -40,7 +38,6 @@ export function useLogs() {
   async function loadConfig() {
     try {
       const cfg = await api.getPublicConfig()
-      selector.value = cfg.lokiLogSelector
       logsPollMs.value = cfg.logsPollMs
     } catch {
       /* keep defaults */
@@ -71,7 +68,6 @@ export function useLogs() {
       filter: filter.value || undefined,
       level: level.value,
     })
-    selector.value = result.selector
     for (const line of result.lines) {
       const key = lineKey(line)
       if (!seen.has(key)) {
@@ -96,12 +92,12 @@ export function useLogs() {
     try {
       if (source.value === LIVE_SOURCE) {
         await fetchLiveOnce()
+        if (lines.value.length > 2000) {
+          const dropped = lines.value.splice(0, lines.value.length - 2000)
+          for (const d of dropped) seen.delete(lineKey(d))
+        }
       } else {
         await fetchFileOnce()
-      }
-      if (lines.value.length > 2000) {
-        const dropped = lines.value.splice(0, lines.value.length - 2000)
-        for (const d of dropped) seen.delete(lineKey(d))
       }
       error.value = null
     } catch (e) {
@@ -128,7 +124,7 @@ export function useLogs() {
   function restartPolling() {
     if (timer) clearInterval(timer)
     timer = undefined
-    if (live.value && !paused.value) {
+    if (!paused.value) {
       timer = setInterval(() => void fetchOnce(), logsPollMs.value)
     }
   }
@@ -184,15 +180,6 @@ export function useLogs() {
     void fetchOnce()
   })
 
-  watch(live, (on) => {
-    if (!on && timer) {
-      clearInterval(timer)
-      timer = undefined
-    } else {
-      restartPolling()
-    }
-  })
-
   onMounted(async () => {
     await loadConfig()
     await loadLogFiles()
@@ -211,11 +198,9 @@ export function useLogs() {
     level,
     selectedMods,
     availableMods,
-    live,
     paused,
     loading,
     error,
-    selector,
     source,
     logFiles,
     fetchOnce,

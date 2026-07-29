@@ -64,6 +64,35 @@ export type PublicConfig = {
   logsPollMs: number
 }
 
+export type ServerEnvironment = {
+  id: string
+  label: string
+}
+
+export type EnvironmentsResponse = {
+  environments: ServerEnvironment[]
+  default: string
+}
+
+export type ServerAction = 'start' | 'stop' | 'restart'
+
+export type ServerStatus = {
+  id: string
+  label: string
+  unit: string
+  /** systemd ActiveState: active, inactive, failed, activating… */
+  activeState: string
+  subState: string
+  running: boolean
+  activeSinceMs?: number
+  /** Set when the unit status could not be read. */
+  error?: string
+}
+
+export type ServersResponse = {
+  servers: ServerStatus[]
+}
+
 export type ConsoleSendResponse = {
   ok: true
 }
