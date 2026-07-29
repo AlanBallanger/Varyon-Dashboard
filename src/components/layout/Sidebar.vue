@@ -32,13 +32,11 @@
 
 <script setup lang="ts">
 import {
+  IconHome,
   IconFileText,
   IconUsers,
   IconPuzzle,
   IconTerminal2,
-  IconGauge,
-  IconDatabase,
-  IconCpu,
   IconFlame,
   IconBinaryTree,
   IconDeviceFloppy,
@@ -46,6 +44,7 @@ import {
 } from '@tabler/icons-vue'
 
 const activeItems = [
+  { to: '/accueil', label: 'Accueil', icon: IconHome },
   { to: '/logs', label: 'Logs', icon: IconFileText },
   { to: '/joueurs', label: 'Joueurs', icon: IconUsers },
   { to: '/mods', label: 'Mods', icon: IconPuzzle },
@@ -53,9 +52,6 @@ const activeItems = [
 ]
 
 const soonItems = [
-  { label: 'TPS', icon: IconGauge },
-  { label: 'RAM', icon: IconDatabase },
-  { label: 'CPU', icon: IconCpu },
   { label: 'Spark', icon: IconFlame },
   { label: 'Threads', icon: IconBinaryTree },
   { label: 'World Save', icon: IconDeviceFloppy },

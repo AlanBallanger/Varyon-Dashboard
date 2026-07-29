@@ -13,6 +13,13 @@ type JournalEntry = {
   __CURSOR?: string
 }
 
+/** CSI sequences (colours) plus the bare ESC that Hytale emits around lines. */
+const ANSI_RE = /\[[0-9;?]*[ -/]*[@-~]|/g
+
+export function stripAnsi(text: string): string {
+  return text.replace(ANSI_RE, '')
+}
+
 function decodeMessage(message: JournalEntry['MESSAGE']): string {
   // Non-UTF8 messages come back as a byte array
   if (Array.isArray(message)) return Buffer.from(message).toString('utf8')
@@ -30,7 +37,7 @@ export function parseJournalOutput(stdout: string): { lines: LogLine[]; cursor?:
     } catch {
       continue
     }
-    const line = decodeMessage(entry.MESSAGE)
+    const line = stripAnsi(decodeMessage(entry.MESSAGE))
     const us = Number(entry.__REALTIME_TIMESTAMP ?? 0)
     lines.push({
       ts: new Date(us / 1000).toISOString(),
