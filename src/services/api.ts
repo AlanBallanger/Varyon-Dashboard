@@ -5,10 +5,24 @@ import type {
   PlayersResponse,
   ModsResponse,
   PublicConfig,
+  ConsoleSendResponse,
 } from '@/types/api'
 
 async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(path)
+  if (!res.ok) {
+    const body = await res.text()
+    throw new Error(body || `HTTP ${res.status}`)
+  }
+  return res.json() as Promise<T>
+}
+
+async function postJson<T>(path: string, payload: unknown): Promise<T> {
+  const res = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
   if (!res.ok) {
     const body = await res.text()
     throw new Error(body || `HTTP ${res.status}`)
@@ -37,4 +51,6 @@ export const api = {
     if (q.filter) params.set('filter', q.filter)
     return getJson<LogsQueryResponse>(`/api/logs/query?${params}`)
   },
+  sendConsoleCommand: (command: string) =>
+    postJson<ConsoleSendResponse>('/api/console/send', { command }),
 }

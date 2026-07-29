@@ -1,6 +1,7 @@
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { api } from '@/services/api'
 import type { LogLevel, LogLine } from '@/types/api'
+import { collectModNames, lineMatchesMods } from '@/utils/logMods'
 
 function lineKey(line: LogLine) {
   return `${line.ts}|${line.line}`
@@ -10,6 +11,8 @@ export function useLogs() {
   const lines = ref<LogLine[]>([])
   const filter = ref('')
   const level = ref<LogLevel>('ALL')
+  /** null = all mods selected */
+  const selectedMods = ref<string[] | null>(null)
   const live = ref(true)
   const paused = ref(false)
   const loading = ref(false)
@@ -19,6 +22,14 @@ export function useLogs() {
   const seen = new Set<string>()
   let timer: ReturnType<typeof setInterval> | undefined
   let windowStart = Date.now() - 15 * 60_000
+
+  const availableMods = computed(() => collectModNames(lines.value))
+
+  const visibleLines = computed(() => {
+    const sel =
+      selectedMods.value === null ? null : new Set(selectedMods.value)
+    return lines.value.filter((l) => lineMatchesMods(l, sel))
+  })
 
   async function loadConfig() {
     try {
@@ -82,6 +93,46 @@ export function useLogs() {
     if (!paused.value) void fetchOnce()
   }
 
+  function selectAllMods() {
+    selectedMods.value = null
+  }
+
+  function selectNoMods() {
+    selectedMods.value = []
+  }
+
+  function toggleMod(mod: string, checked: boolean) {
+    const all = availableMods.value
+    let next: Set<string>
+    if (selectedMods.value === null) {
+      next = new Set(all)
+    } else {
+      next = new Set(selectedMods.value)
+    }
+    if (checked) next.add(mod)
+    else next.delete(mod)
+
+    if (next.size === all.length && all.every((m) => next.has(m))) {
+      selectedMods.value = null
+    } else {
+      selectedMods.value = [...next]
+    }
+  }
+
+  // Drop unknown selections when the available set shrinks (e.g. buffer trim)
+  watch(availableMods, (mods) => {
+    if (selectedMods.value === null) return
+    // Keep selection while buffer is empty (text/level refetch)
+    if (!mods.length) return
+    const allowed = new Set(mods)
+    const pruned = selectedMods.value.filter((m) => allowed.has(m))
+    if (pruned.length === mods.length && mods.every((m) => pruned.includes(m))) {
+      selectedMods.value = null
+    } else if (pruned.length !== selectedMods.value.length) {
+      selectedMods.value = pruned
+    }
+  })
+
   watch([filter, level], () => {
     clearLines()
     void fetchOnce()
@@ -108,8 +159,11 @@ export function useLogs() {
 
   return {
     lines,
+    visibleLines,
     filter,
     level,
+    selectedMods,
+    availableMods,
     live,
     paused,
     loading,
@@ -118,5 +172,8 @@ export function useLogs() {
     fetchOnce,
     clearLines,
     togglePause,
+    selectAllMods,
+    selectNoMods,
+    toggleMod,
   }
 }

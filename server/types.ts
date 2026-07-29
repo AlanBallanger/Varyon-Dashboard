@@ -46,3 +46,11 @@ export type PublicConfig = {
   playersPollMs: number
   logsPollMs: number
 }
+
+export type ConsoleSendRequest = {
+  command: string
+}
+
+export type ConsoleSendResponse = {
+  ok: true
+}

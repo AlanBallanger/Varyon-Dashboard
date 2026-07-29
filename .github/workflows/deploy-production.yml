@@ -66,6 +66,7 @@ jobs:
           LOKI_LOG_SELECTOR: ${{ secrets.LOKI_LOG_SELECTOR }}
           API_PORT: ${{ secrets.API_PORT }}
           PLAYERS_PROMQL: ${{ secrets.PLAYERS_PROMQL }}
+          CONSOLE_FIFO_PATH: ${{ secrets.CONSOLE_FIFO_PATH }}
         run: |
           mkdir -p deploy
           cp -r dist deploy/
@@ -81,6 +82,7 @@ jobs:
             "LOKI_LOG_SELECTOR",
             "API_PORT",
             "PLAYERS_PROMQL",
+            "CONSOLE_FIFO_PATH",
           ]
           with open("deploy/.env", "w", encoding="utf-8") as f:
               for key in keys:

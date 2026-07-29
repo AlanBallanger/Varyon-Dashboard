@@ -19,6 +19,7 @@ Settings → Secrets and variables → Actions :
 | `LOKI_LOG_SELECTOR` | LogQL selector | `{job="hytale"}` |
 | `API_PORT` | Port API/UI | `8787` |
 | `PLAYERS_PROMQL` | PromQL joueurs | `hytale_players_online` |
+| `CONSOLE_FIFO_PATH` | Pipe stdin console Hytale | `/opt/hytale/server/console.fifo` |
 
 Les secrets VPS peuvent être les mêmes que pour Varyon_site si c’est le même serveur.
 

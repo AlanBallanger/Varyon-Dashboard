@@ -32,6 +32,7 @@ export type AppEnv = {
   lokiLogSelector: string
   apiPort: number
   playersPromql: string
+  consoleFifoPath: string
 }
 
 export function loadEnv(): AppEnv {
@@ -42,5 +43,6 @@ export function loadEnv(): AppEnv {
     lokiLogSelector: process.env.LOKI_LOG_SELECTOR ?? '{job="hytale"}',
     apiPort: Number(process.env.API_PORT ?? 8787),
     playersPromql: process.env.PLAYERS_PROMQL ?? 'hytale_players_online',
+    consoleFifoPath: process.env.CONSOLE_FIFO_PATH ?? '/opt/hytale/server/console.fifo',
   }
 }

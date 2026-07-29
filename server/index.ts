@@ -6,7 +6,8 @@ import { getHealth } from './health'
 import { queryLokiLogs } from './loki'
 import { getPlayers } from './players'
 import { listMods } from './mods'
-import type { LogLevel, PublicConfig } from './types'
+import { sendConsoleCommand } from './console'
+import type { ConsoleSendRequest, LogLevel, PublicConfig } from './types'
 
 const env = loadEnv()
 
@@ -25,6 +26,18 @@ function sendError(res: import('node:http').ServerResponse, status: number, mess
 
 function parseUrl(reqUrl: string | undefined) {
   return new URL(reqUrl ?? '/', `http://127.0.0.1:${env.apiPort}`)
+}
+
+async function readJsonBody(req: import('node:http').IncomingMessage, maxBytes = 8192): Promise<unknown> {
+  const chunks: Buffer[] = []
+  let size = 0
+  for await (const chunk of req) {
+    size += chunk.length
+    if (size > maxBytes) throw new Error('Request body too large')
+    chunks.push(chunk)
+  }
+  if (chunks.length === 0) return {}
+  return JSON.parse(Buffer.concat(chunks).toString('utf8'))
 }
 
 const server = createServer(async (req, res) => {
@@ -55,6 +68,14 @@ const server = createServer(async (req, res) => {
     }
     if (req.method === 'GET' && url.pathname === '/api/mods') {
       return sendJson(res, 200, await listMods(env))
+    }
+    if (req.method === 'POST' && url.pathname === '/api/console/send') {
+      const body = (await readJsonBody(req)) as Partial<ConsoleSendRequest>
+      if (typeof body.command !== 'string') {
+        return sendError(res, 400, 'Missing "command" string')
+      }
+      await sendConsoleCommand(env, body.command)
+      return sendJson(res, 200, { ok: true })
     }
 
     if (req.method === 'GET' && !url.pathname.startsWith('/api')) {

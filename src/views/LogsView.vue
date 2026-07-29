@@ -16,10 +16,15 @@
       v-model:level="level"
       v-model:live="live"
       :paused="paused"
+      :available-mods="availableMods"
+      :selected-mods="selectedMods"
       @toggle-pause="togglePause"
+      @mods-all="selectAllMods"
+      @mods-none="selectNoMods"
+      @toggle-mod="toggleMod"
     />
 
-    <LogViewer class="flex-1" :lines="lines" :error="error" :paused="paused" />
+    <LogViewer class="flex-1" :lines="visibleLines" :error="error" :paused="paused" />
   </div>
 </template>
 
@@ -29,14 +34,19 @@ import LogViewer from '@/components/logs/LogViewer.vue'
 import { useLogs } from '@/composables/useLogs'
 
 const {
-  lines,
+  visibleLines,
   filter,
   level,
+  selectedMods,
+  availableMods,
   live,
   paused,
   loading,
   error,
   selector,
   togglePause,
+  selectAllMods,
+  selectNoMods,
+  toggleMod,
 } = useLogs()
 </script>

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LogsView from '@/views/LogsView.vue'
 import JoueursView from '@/views/JoueursView.vue'
 import ModsView from '@/views/ModsView.vue'
+import ConsoleView from '@/views/ConsoleView.vue'
 import PlaceholderView from '@/views/PlaceholderView.vue'
 
 const router = createRouter({
@@ -11,7 +12,7 @@ const router = createRouter({
     { path: '/logs', name: 'logs', component: LogsView },
     { path: '/joueurs', name: 'joueurs', component: JoueursView },
     { path: '/mods', name: 'mods', component: ModsView },
-    { path: '/console', name: 'console', component: PlaceholderView },
+    { path: '/console', name: 'console', component: ConsoleView },
     { path: '/tps', name: 'tps', component: PlaceholderView },
     { path: '/ram', name: 'ram', component: PlaceholderView },
     { path: '/cpu', name: 'cpu', component: PlaceholderView },

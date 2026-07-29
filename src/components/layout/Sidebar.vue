@@ -49,10 +49,10 @@ const activeItems = [
   { to: '/logs', label: 'Logs', icon: IconFileText },
   { to: '/joueurs', label: 'Joueurs', icon: IconUsers },
   { to: '/mods', label: 'Mods', icon: IconPuzzle },
+  { to: '/console', label: 'Console', icon: IconTerminal2 },
 ]
 
 const soonItems = [
-  { label: 'Console', icon: IconTerminal2 },
   { label: 'TPS', icon: IconGauge },
   { label: 'RAM', icon: IconDatabase },
   { label: 'CPU', icon: IconCpu },
