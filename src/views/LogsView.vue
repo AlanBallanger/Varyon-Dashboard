@@ -18,10 +18,13 @@
       :paused="paused"
       :available-mods="availableMods"
       :selected-mods="selectedMods"
+      :source="source"
+      :log-files="logFiles"
       @toggle-pause="togglePause"
       @mods-all="selectAllMods"
       @mods-none="selectNoMods"
       @toggle-mod="toggleMod"
+      @select-source="selectSource"
     />
 
     <LogViewer class="flex-1" :lines="visibleLines" :error="error" :paused="paused" />
@@ -44,9 +47,12 @@ const {
   loading,
   error,
   selector,
+  source,
+  logFiles,
   togglePause,
   selectAllMods,
   selectNoMods,
   toggleMod,
+  selectSource,
 } = useLogs()
 </script>

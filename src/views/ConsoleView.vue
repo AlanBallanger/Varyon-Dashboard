@@ -3,15 +3,12 @@
     <div class="flex items-end justify-between gap-4 flex-wrap">
       <div>
         <h2 class="text-2xl font-semibold">Console</h2>
-        <p class="text-sm opacity-60 mt-1">
-          Sélecteur :
-          <code class="text-xs bg-base-200 px-1.5 py-0.5 rounded">{{ selector || '…' }}</code>
-        </p>
+        <p class="text-sm opacity-60 mt-1">Sortie temps réel du serveur</p>
       </div>
       <span v-if="loading" class="loading loading-spinner loading-sm opacity-50" />
     </div>
 
-    <LogViewer class="flex-1" :lines="visibleLines" :error="error" :paused="paused" />
+    <LogViewer class="flex-1" :lines="lines" :error="error" :paused="false" />
 
     <form class="flex items-center gap-2" @submit.prevent="onSubmit">
       <span class="font-mono text-sm opacity-60">&gt;</span>
@@ -38,17 +35,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import LogViewer from '@/components/logs/LogViewer.vue'
-import { useLogs } from '@/composables/useLogs'
 import { useConsole } from '@/composables/useConsole'
 
-const { visibleLines, loading, error, paused, selector } = useLogs()
-const { sending, sendError, send, historyUp, historyDown } = useConsole()
+const { lines, loading, error, sending, sendError, send, historyUp, historyDown } = useConsole()
 
 const command = ref('')
 
 async function onSubmit() {
-  const value = command.value
-  await send(value)
+  await send(command.value)
   if (!sendError.value) command.value = ''
 }
 </script>

@@ -33,6 +33,8 @@ export type AppEnv = {
   apiPort: number
   playersPromql: string
   consoleFifoPath: string
+  consoleUnit: string
+  logsDir: string
 }
 
 export function loadEnv(): AppEnv {
@@ -44,5 +46,7 @@ export function loadEnv(): AppEnv {
     apiPort: Number(process.env.API_PORT ?? 8787),
     playersPromql: process.env.PLAYERS_PROMQL ?? 'hytale_players_online',
     consoleFifoPath: process.env.CONSOLE_FIFO_PATH ?? '/opt/hytale/server/console.fifo',
+    consoleUnit: process.env.CONSOLE_UNIT ?? 'hytale',
+    logsDir: process.env.HYTALE_LOGS_DIR ?? '/opt/hytale/server/logs',
   }
 }

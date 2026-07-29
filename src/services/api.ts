@@ -6,6 +6,9 @@ import type {
   ModsResponse,
   PublicConfig,
   ConsoleSendResponse,
+  ConsoleStreamResponse,
+  LogFileListResponse,
+  LogFileReadResponse,
 } from '@/types/api'
 
 async function getJson<T>(path: string): Promise<T> {
@@ -51,6 +54,18 @@ export const api = {
     if (q.filter) params.set('filter', q.filter)
     return getJson<LogsQueryResponse>(`/api/logs/query?${params}`)
   },
+  getLogFiles: () => getJson<LogFileListResponse>('/api/logs/files'),
+  getLogFile: (q: { name: string; from?: number }) => {
+    const params = new URLSearchParams({ name: q.name })
+    if (q.from !== undefined) params.set('from', String(q.from))
+    return getJson<LogFileReadResponse>(`/api/logs/file?${params}`)
+  },
   sendConsoleCommand: (command: string) =>
     postJson<ConsoleSendResponse>('/api/console/send', { command }),
+  getConsoleStream: (cursor?: string) => {
+    const params = new URLSearchParams()
+    if (cursor) params.set('cursor', cursor)
+    const qs = params.toString()
+    return getJson<ConsoleStreamResponse>(`/api/console/stream${qs ? `?${qs}` : ''}`)
+  },
 }

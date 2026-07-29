@@ -1,5 +1,16 @@
 <template>
   <div class="flex flex-wrap items-center gap-3">
+    <select
+      class="select select-bordered select-sm max-w-[260px]"
+      :value="source"
+      @change="onSource"
+    >
+      <option :value="LIVE_SOURCE">Live (Loki)</option>
+      <option v-for="file in logFiles" :key="file.name" :value="file.name">
+        {{ file.name }}
+      </option>
+    </select>
+
     <label class="input input-bordered input-sm flex items-center gap-2 min-w-[220px] flex-1">
       <input
         :value="filter"
@@ -74,7 +85,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { LogLevel } from '@/types/api'
+import type { LogFileInfo, LogLevel } from '@/types/api'
+import { LIVE_SOURCE } from '@/composables/useLogs'
 
 const props = defineProps<{
   filter: string
@@ -84,6 +96,8 @@ const props = defineProps<{
   availableMods: string[]
   /** null = all selected */
   selectedMods: string[] | null
+  source: string
+  logFiles: LogFileInfo[]
 }>()
 
 const emit = defineEmits<{
@@ -94,7 +108,12 @@ const emit = defineEmits<{
   'mods-all': []
   'mods-none': []
   'toggle-mod': [mod: string, checked: boolean]
+  'select-source': [name: string]
 }>()
+
+function onSource(e: Event) {
+  emit('select-source', (e.target as HTMLSelectElement).value)
+}
 
 const modBadge = computed(() => {
   const total = props.availableMods.length

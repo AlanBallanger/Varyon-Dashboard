@@ -7,6 +7,8 @@ import { queryLokiLogs } from './loki'
 import { getPlayers } from './players'
 import { listMods } from './mods'
 import { sendConsoleCommand } from './console'
+import { readJournal } from './journal'
+import { listLogFiles, readLogFile } from './logFiles'
 import type { ConsoleSendRequest, LogLevel, PublicConfig } from './types'
 
 const env = loadEnv()
@@ -63,11 +65,29 @@ const server = createServer(async (req, res) => {
       const result = await queryLokiLogs(env, { startMs: start, endMs: end, limit, filter, level })
       return sendJson(res, 200, result)
     }
+    if (req.method === 'GET' && url.pathname === '/api/logs/files') {
+      return sendJson(res, 200, await listLogFiles(env))
+    }
+    if (req.method === 'GET' && url.pathname === '/api/logs/file') {
+      const name = url.searchParams.get('name') ?? ''
+      const fromParam = url.searchParams.get('from')
+      const from = fromParam !== null ? Number(fromParam) : undefined
+      try {
+        return sendJson(res, 200, await readLogFile(env, { name, from }))
+      } catch (e) {
+        return sendError(res, 400, e instanceof Error ? e.message : String(e))
+      }
+    }
     if (req.method === 'GET' && url.pathname === '/api/players') {
       return sendJson(res, 200, await getPlayers(env))
     }
     if (req.method === 'GET' && url.pathname === '/api/mods') {
       return sendJson(res, 200, await listMods(env))
+    }
+    if (req.method === 'GET' && url.pathname === '/api/console/stream') {
+      const cursor = url.searchParams.get('cursor') ?? undefined
+      const lines = Number(url.searchParams.get('lines') ?? 300)
+      return sendJson(res, 200, await readJournal(env, { cursor, lines }))
     }
     if (req.method === 'POST' && url.pathname === '/api/console/send') {
       const body = (await readJsonBody(req)) as Partial<ConsoleSendRequest>

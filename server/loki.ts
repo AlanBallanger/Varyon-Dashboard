@@ -47,6 +47,17 @@ export function normalizeLokiMatrix(payload: unknown): LogLine[] {
   return lines
 }
 
+export async function listLokiLabelValues(env: AppEnv, label: string): Promise<string[]> {
+  const url = `${env.lokiUrl.replace(/\/$/, '')}/loki/api/v1/label/${encodeURIComponent(label)}/values`
+  const res = await fetch(url)
+  if (!res.ok) {
+    const body = await res.text()
+    throw new Error(`Loki ${res.status}: ${body}`)
+  }
+  const json = (await res.json()) as { data?: string[] }
+  return json.data ?? []
+}
+
 export async function queryLokiLogs(
   env: AppEnv,
   opts: {

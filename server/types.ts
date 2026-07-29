@@ -17,6 +17,24 @@ export type LogsQueryResponse = {
   selector: string
 }
 
+export type LogFileInfo = {
+  name: string
+  sizeBytes: number
+  modifiedMs: number
+}
+
+export type LogFileListResponse = {
+  files: LogFileInfo[]
+  path: string
+}
+
+export type LogFileReadResponse = {
+  lines: LogLine[]
+  /** Byte offset to pass as `from` on the next poll to fetch only newer content. */
+  nextOffset: number
+  sizeBytes: number
+}
+
 export type PlayerInfo = {
   name: string
   labels: Record<string, string>
@@ -49,6 +67,12 @@ export type PublicConfig = {
 
 export type ConsoleSendRequest = {
   command: string
+}
+
+export type ConsoleStreamResponse = {
+  lines: LogLine[]
+  /** Opaque journald cursor; send it back to fetch only newer entries. */
+  cursor?: string
 }
 
 export type ConsoleSendResponse = {
