@@ -8,6 +8,8 @@
     <LogFilters
       v-model:filter="filter"
       v-model:level="level"
+      v-model:start-time="startTime"
+      v-model:end-time="endTime"
       :paused="paused"
       :available-mods="availableMods"
       :selected-mods="selectedMods"
@@ -33,6 +35,8 @@ const {
   visibleLines,
   filter,
   level,
+  startTime,
+  endTime,
   selectedMods,
   availableMods,
   paused,

@@ -31,7 +31,8 @@ describe('resolveEnv', () => {
   it('returns a distinct config for the test environment', () => {
     const env = resolveEnv('test')
     expect(env.lokiLogSelector).toBe('{job="test"}')
-    expect(env.consoleUnit).toBe('test')
+    expect(env.consoleUnit).toBe('hytale-test')
+    expect(env.logsDir).toBe('/opt/hytale/test/logs')
     expect(env.consoleFifoPath).not.toBe(resolveEnv('hytale').consoleFifoPath)
   })
 

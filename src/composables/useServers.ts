@@ -1,11 +1,16 @@
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { api } from '@/services/api'
+import { currentEnvironment } from '@/composables/useEnvironment'
 import type { ServerAction, ServerStatus } from '@/types/api'
 
 const POLL_MS = 5000
 
 export function useServers() {
   const servers = ref<ServerStatus[]>([])
+  /** The environment switcher scopes the page to a single server. */
+  const server = computed(
+    () => servers.value.find((s) => s.id === currentEnvironment.value) ?? null,
+  )
   const loading = ref(false)
   const error = ref<string | null>(null)
   /** Server id currently running an action, so its card can show a spinner. */
@@ -56,5 +61,5 @@ export function useServers() {
     if (timer) clearInterval(timer)
   })
 
-  return { servers, loading, error, busyId, actionError, refresh, runAction }
+  return { servers, server, loading, error, busyId, actionError, refresh, runAction }
 }

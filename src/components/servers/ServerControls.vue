@@ -1,8 +1,8 @@
 <template>
   <section class="space-y-3">
     <div class="flex items-end justify-between gap-4">
-      <h3 class="text-lg font-semibold">Serveurs</h3>
-      <span v-if="loading && !servers.length" class="loading loading-spinner loading-sm opacity-50" />
+      <h3 class="text-lg font-semibold">Serveur</h3>
+      <span v-if="loading && !server" class="loading loading-spinner loading-sm opacity-50" />
     </div>
 
     <div v-if="error" class="alert alert-error text-sm">
@@ -12,15 +12,12 @@
       <span>{{ actionError }}</span>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <ServerCard
-        v-for="server in servers"
-        :key="server.id"
-        :server="server"
-        :busy="busyId === server.id"
-        @action="(action) => askConfirmation(server, action)"
-      />
-    </div>
+    <ServerCard
+      v-if="server"
+      :server="server"
+      :busy="busyId === server.id"
+      @action="askConfirmation"
+    />
 
     <dialog ref="dialog" class="modal" @close="pending = null">
       <div v-if="pending" class="modal-box">
@@ -46,7 +43,7 @@ import ServerCard from './ServerCard.vue'
 import { useServers } from '@/composables/useServers'
 import type { ServerAction, ServerStatus } from '@/types/api'
 
-const { servers, loading, error, busyId, actionError, runAction } = useServers()
+const { server, loading, error, busyId, actionError, runAction } = useServers()
 
 const dialog = ref<HTMLDialogElement | null>(null)
 const pending = ref<{ server: ServerStatus; action: ServerAction } | null>(null)
@@ -57,13 +54,15 @@ const ACTION_LABELS: Record<ServerAction, string> = {
   restart: 'Redémarrer',
 }
 
-function askConfirmation(server: ServerStatus, action: ServerAction) {
+function askConfirmation(action: ServerAction) {
+  const target = server.value
+  if (!target) return
   // Starting a stopped server disconnects nobody, so skip the prompt.
   if (action === 'start') {
-    void runAction(server.id, action)
+    void runAction(target.id, action)
     return
   }
-  pending.value = { server, action }
+  pending.value = { server: target, action }
   dialog.value?.showModal()
 }
 

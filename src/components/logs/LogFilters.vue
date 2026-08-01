@@ -32,6 +32,38 @@
       <option value="ERROR">ERROR</option>
     </select>
 
+    <label class="input input-bordered input-sm flex items-center gap-2">
+      <span class="text-xs opacity-60">Début</span>
+      <input
+        :value="startTime"
+        type="datetime-local"
+        step="1"
+        class="grow"
+        @change="onStartTime"
+      />
+    </label>
+
+    <label class="input input-bordered input-sm flex items-center gap-2">
+      <span class="text-xs opacity-60">Fin</span>
+      <input
+        :value="endTime"
+        type="datetime-local"
+        step="1"
+        class="grow"
+        @change="onEndTime"
+      />
+    </label>
+
+    <button
+      v-if="startTime || endTime"
+      class="btn btn-sm btn-ghost"
+      type="button"
+      title="Effacer la plage horaire et revenir au live"
+      @click="clearRange"
+    >
+      ✕ Plage
+    </button>
+
     <details class="dropdown">
       <summary class="btn btn-sm">
         Mods
@@ -81,6 +113,8 @@ import { LIVE_SOURCE } from '@/composables/useLogs'
 const props = defineProps<{
   filter: string
   level: LogLevel
+  startTime: string
+  endTime: string
   paused: boolean
   availableMods: string[]
   /** null = all selected */
@@ -92,6 +126,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:filter': [value: string]
   'update:level': [value: LogLevel]
+  'update:startTime': [value: string]
+  'update:endTime': [value: string]
   'toggle-pause': []
   'mods-all': []
   'mods-none': []
@@ -145,5 +181,18 @@ function onFilter(e: Event) {
 
 function onLevel(e: Event) {
   emit('update:level', (e.target as HTMLSelectElement).value as LogLevel)
+}
+
+function onStartTime(e: Event) {
+  emit('update:startTime', (e.target as HTMLInputElement).value)
+}
+
+function onEndTime(e: Event) {
+  emit('update:endTime', (e.target as HTMLInputElement).value)
+}
+
+function clearRange() {
+  emit('update:startTime', '')
+  emit('update:endTime', '')
 }
 </script>

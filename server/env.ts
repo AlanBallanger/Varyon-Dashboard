@@ -61,12 +61,12 @@ const ENVIRONMENTS: Record<string, AppEnv> = {
   },
   test: {
     ...SHARED,
-    modsPath: process.env.TEST_MODS_PATH ?? '/opt/test/server/mods',
+    modsPath: process.env.TEST_MODS_PATH ?? '/opt/hytale/test/mods',
     lokiLogSelector: process.env.TEST_LOKI_LOG_SELECTOR ?? '{job="test"}',
     playersPromql: process.env.TEST_PLAYERS_PROMQL ?? 'test_players_online',
-    consoleFifoPath: process.env.TEST_CONSOLE_FIFO_PATH ?? '/opt/test/server/console.fifo',
-    consoleUnit: process.env.TEST_CONSOLE_UNIT ?? 'test',
-    logsDir: process.env.TEST_LOGS_DIR ?? '/opt/test/server/logs',
+    consoleFifoPath: process.env.TEST_CONSOLE_FIFO_PATH ?? '/opt/hytale/test/console.fifo',
+    consoleUnit: process.env.TEST_CONSOLE_UNIT ?? 'hytale-test',
+    logsDir: process.env.TEST_LOGS_DIR ?? '/opt/hytale/test/logs',
   },
 }
 
